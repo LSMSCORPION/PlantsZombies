@@ -15,7 +15,7 @@ public class Placement : MonoBehaviour
     [SerializeField] private LayerMask _groundLayer;
 
     private List<GameObject> _placedPlants = new List<GameObject>();
-    private const float k_MaxRayDistance = 2f;
+    private const float k_MaxRayDistance = Mathf.Infinity;
     
     private Vector3? RaycastToGrid()
     {
@@ -51,7 +51,8 @@ public class Placement : MonoBehaviour
     {
         Vector3? gridPosition = RaycastToGrid();
         if (gridPosition == null) return;
-        Instantiate(_placeholderPlant, (Vector3)gridPosition, Quaternion.identity);
+        GameObject newPlant = Instantiate(_placeholderPlant, (Vector3)gridPosition, Quaternion.identity);
+        _placedPlants.Add(newPlant);
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
