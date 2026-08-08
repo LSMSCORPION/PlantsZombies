@@ -1,25 +1,26 @@
 using JetBrains.Annotations;
 using NUnit.Framework;
+using System.Collections.Generic;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Collections.Generic;
+using RangeAttribute = UnityEngine.RangeAttribute;
 
 public class Placement : MonoBehaviour
 {
-    public int GridSize = 1;
+    public CellSystem CellSystem;
 
     [SerializeField] private InputActionReference _placeAction;
     [SerializeField] private Camera _camera;
     [SerializeField] private GameObject _placeholderPlant;
-    [SerializeField] private GameObject _ghostPlant;
     [SerializeField] private LayerMask _groundLayer;
 
+    private GameObject _ghostPlant;
     private List<GameObject> _placedPlants = new List<GameObject>();
-    private const float k_MaxRayDistance = Mathf.Infinity;
+    private const float k_MaxRayDistance = 5f;
     
-    private Vector3? RaycastToGrid()
+    private Vector3 RaycastToGrid()
     {
-        // Raycast.
         RaycastHit hitInfo;
         bool hit = Physics.Raycast(
             _camera.transform.position,
@@ -28,30 +29,19 @@ public class Placement : MonoBehaviour
             k_MaxRayDistance,
             _groundLayer
         );
-        if (!hit) return null;
 
-        // Snap the hit position to the grid.
-        Vector3 gridPosition = new Vector3(
-            Mathf.Floor(hitInfo.point.x / GridSize) * GridSize,
-            1f,
-            Mathf.Floor(hitInfo.point.z / GridSize) * GridSize
-        );
-
-        // Make sure plant hasn't already been placed here.
-        foreach (GameObject plant in _placedPlants)
+        if (!hit)
         {
-            if (plant.transform.position == gridPosition)
-                return null;
+            Vector3 point = _camera.transform.position + _camera.transform.forward * k_MaxRayDistance;
+            return CellSystem.PointToCell(point);
         }
 
-        return gridPosition;
+        return CellSystem.PointToCell(hitInfo.point);
     }
 
     private void OnClick()
     {
-        Vector3? gridPosition = RaycastToGrid();
-        if (gridPosition == null) return;
-        GameObject newPlant = Instantiate(_placeholderPlant, (Vector3)gridPosition, Quaternion.identity);
+        GameObject newPlant = Instantiate(_placeholderPlant, RaycastToGrid(), Quaternion.identity);
         _placedPlants.Add(newPlant);
     }
 
@@ -65,8 +55,18 @@ public class Placement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector3? gridPosition = RaycastToGrid();
-        if (gridPosition == null) return;
-        _ghostPlant.transform.position = (Vector3)gridPosition;
+        Vector3 gridPosition = RaycastToGrid();
+
+        // Create the ghost plant if it doesn't exist.
+        Destroy(_ghostPlant);
+        _ghostPlant = Instantiate(_placeholderPlant, gridPosition, Quaternion.identity);
+
+        // Set the transparency of the ghost plant to 50%.
+        Renderer ghostPlantRenderer = _ghostPlant.GetComponent<Renderer>();
+        Color currentColor = ghostPlantRenderer.material.color;
+        ghostPlantRenderer.material.color = new Color(currentColor.r, currentColor.g, currentColor.b, 0.5f);
+
+        _ghostPlant.SetActive(true);
+        _ghostPlant.transform.position = gridPosition;
     }
 }

@@ -163,7 +163,7 @@ MonoBehaviour:
   _plantData:
     plantName: PeaShooter_Plant
     health: 100
-    fireRate: 5
+    fireRate: 1
     proj_Speed: 100
     proj_Damage: 20
   fireCooldown: 1
