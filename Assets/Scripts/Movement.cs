@@ -12,14 +12,15 @@ public class Movement : MonoBehaviour
 
     private void Jump(InputAction.CallbackContext context)
     {
+        Debug.Log("Jump pressed at: " + Time.time);
+
         bool hit = Physics.Raycast(
             rigidbody.transform.position,
             Vector3.down,
-            1f,
+            1.1f,
             groundLayer
         );
-        if (!hit)
-            return;
+        if (!hit) return;
 
         rigidbody.AddForce(new Vector3(0, _jumpStrength, 0), ForceMode.Impulse);
     }
