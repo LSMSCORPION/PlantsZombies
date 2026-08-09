@@ -32,7 +32,6 @@ public class PlantClass : MonoBehaviour
  
     private void Fire()
     {
-        Debug.Log(_plantData.plantName + " has fired");
         _projectileHandler.ProjectileShoot(_plantData.proj_Speed, _plantData.proj_Damage);
     }
 }
