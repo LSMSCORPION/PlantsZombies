@@ -25,14 +25,14 @@ public class Placement : MonoBehaviour
 
      private void Awake()
      {
-       FindPlayer();
+        FindPlayer();
      }
 
      private void FindPlayer()
     {
         _player = GameObject.FindWithTag("Player");
-
-        if(_player != null)
+        Debug.Assert(_player != null, "Player doesn't exist.");
+        
         _holdSystem = _player.GetComponent<HoldSystem>();
     }
 
@@ -58,8 +58,8 @@ public class Placement : MonoBehaviour
 
     private void OnClick()
     {
-
-        if (_holdSystem == null || !_holdSystem.IsHolding) return;
+        Debug.Assert(_holdSystem != null, "Hold system is null.");
+        if (!_holdSystem.IsHolding) return;
 
         GameObject newPlant = Instantiate(_holdSystem.HeldPlantPrefab, RaycastToGrid(), Quaternion.identity);
         _placedPlants.Add(newPlant);
@@ -102,7 +102,7 @@ public class Placement : MonoBehaviour
     void Update()
     {
 
-        if (_holdSystem == null || !_holdSystem.IsHolding)
+        if (!_holdSystem.IsHolding)
         {
             DestroyGhost();
             return;
