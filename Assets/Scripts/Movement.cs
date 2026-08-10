@@ -1,14 +1,19 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+
 public class Movement : MonoBehaviour
 {
     [SerializeField] private Rigidbody rigidbody;
     [SerializeField] private InputActionReference move;
     [SerializeField] private InputActionReference jump;
-    [SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private float _jumpStrength = 5f;
+    [SerializeField] private float _maxSpeed = 3f;
+    [SerializeField] private float _acceleration = 20f;
+    [SerializeField] private float _deceleration = 10f;
+    [SerializeField] private float rate;
     [SerializeField] private LayerMask groundLayer;
+
 
     private void Jump(InputAction.CallbackContext context)
     {
@@ -34,21 +39,40 @@ public class Movement : MonoBehaviour
         jump.action.started += Jump;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 
     private void FixedUpdate()
     {
-        Vector2 input = move.action.ReadValue<Vector2>();
-        if (input.magnitude == 0)
-            return;
-
-        Vector3 forwardVector = rigidbody.transform.forward;
-        Vector3 rightVector = rigidbody.transform.right;
-        Vector3 moveDirection = (forwardVector * input.y + rightVector * input.x) * _moveSpeed;
-        rigidbody.AddForce(moveDirection);
+      SuperSmooth();
     }
+
+    private void SuperSmooth()
+    {
+        Vector2 input = move.action.ReadValue<Vector2>();
+
+        Vector3 forward = rigidbody.transform.forward;
+        Vector3 right = rigidbody.transform.right;
+
+        Vector3 targetDirection = (forward * input.y + right * input.x).normalized; 
+        Vector3 targetVelocity = targetDirection * _maxSpeed;
+
+        Vector3 currentVelocity = rigidbody.linearVelocity;
+        Vector3 currentHorizontal = new Vector3(currentVelocity.x, 0f, currentVelocity.z);
+
+        if (input.magnitude > 0)
+        {
+            rate = _acceleration;
+        }
+        else
+        {
+           rate = _deceleration; 
+        }
+
+        Vector3 newHorizontal = Vector3.MoveTowards(
+            currentHorizontal, 
+            targetVelocity, 
+            rate*Time.fixedDeltaTime);
+
+        rigidbody.linearVelocity = new Vector3(newHorizontal.x, currentVelocity.y, newHorizontal.z);
+    }
+
 }

@@ -524,7 +524,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   _playerTransform: {fileID: 1490155591}
-  _sensitivity: 0.02
+  _sensitivity: 0.06
   _look: {fileID: -6544094302241355754, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!1 &1490155585 stripped
 GameObject:
@@ -573,8 +573,9 @@ MonoBehaviour:
   rigidbody: {fileID: 1490155586}
   move: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   jump: {fileID: 8063526189537154910, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  _moveSpeed: 10
+  _moveSpeed: 5
   _jumpStrength: 5
+  _maxSpeed: 8
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
